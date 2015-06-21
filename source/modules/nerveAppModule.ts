@@ -24,7 +24,7 @@ interface onParamObj {
     channel: string;    // The category of a an event
     route?: string;     // The sub category of an event
     callback: ( context: any ) => {}; // A callback to to handle the event
-    scope?: Object;     // The scope reference you are calling about
+    scope?: any;     // The scope reference you are calling about
 }
 
 /**
@@ -36,9 +36,20 @@ interface sendParamObj {
     context?: any;      // Data that will be send to the callback
 }
 
+/**
+ * Object that will be passed to OFF function
+ */
+interface offParamObj {
+    channel: string;    // The category of a an event
+    route?: string;     // The sub category of an event
+    scope?: any;        // Scope of the targeting event
+}
+
 module nerve {
 
     var routes:routesObj = {};
+
+    var defaultRoute = 'root';
 
     /**
      * Listen to a given channel or listen to a channel and route combination
@@ -67,9 +78,9 @@ module nerve {
 
 
         if ( ! paramObj.hasOwnProperty('scope') )
-            caller = paramObj.callback || on;
+            caller = null;
         else
-            caller = paramObj.scope || on;
+            caller = paramObj.scope || null;
 
         // Create new route if there is no one
         if ( ! routes.hasOwnProperty( paramObj.channel ) )
@@ -77,7 +88,7 @@ module nerve {
 
         // If there is no route in paramObj - will create default one
         if ( ! paramObj.hasOwnProperty('route') )
-            paramObj.route = 'root';
+            paramObj.route = defaultRoute;
 
         // If given paramObj.route not exists in main routes object - create one
         if ( ! routes[paramObj.channel].hasOwnProperty( paramObj.route ) )
@@ -94,41 +105,6 @@ module nerve {
 
     }
 
-    /**
-     * Remove listener
-     * @param channel
-     *
-     * @example
-     *  Removing a listener for a channel
-     nerve.off('order');
-     */
-    export function off ( channel: string ):void;
-    /**
-     * Remove listener
-     * @param channel
-     * @param route
-     * @param scope
-     *
-     * @example
-     *  Removing a listener from a specific channel's route
-     *  nerve.off('order', 'created');
-     */
-    export function off ( channel: string, route?: string, scope? ):void {
-        if ( routes.hasOwnProperty(channel) ) {
-            var r = 'root',
-                caller = scope || off;  // caller = scope || arguments.callee;
-
-            if (route) r = route;
-
-            if ( ! routes[channel].hasOwnProperty(r) ) return;
-
-            var i = 0, len = routes[channel][r].length;
-            for (; i < len; i++) {
-                if (routes[channel][r][i].caller === caller)
-                    delete routes[channel][r][i];
-            }
-        }
-    }
 
     /**
      * Send message
@@ -147,7 +123,7 @@ module nerve {
             throw Error('A channel must be specified');
 
         if ( ! paramObj.hasOwnProperty('route') )
-            paramObj.route = 'root';
+            paramObj.route = defaultRoute;
 
         if ( ! routes.hasOwnProperty( paramObj.channel ) || ! routes[paramObj.channel].hasOwnProperty(paramObj.route) ) {
             return;
@@ -178,8 +154,44 @@ module nerve {
 
 
     /**
+     * Remove listener
      *
-     * @param callReference
+     * @param paramObj {offParamObj}
+     * @example
+     * {
+     *     channel: 'some-channel',
+     *     route: 'route',
+     *     scope: this
+     * }
+     */
+    export function off ( paramObj: offParamObj ):void {
+
+        if ( ! paramObj.hasOwnProperty('channel') )
+            throw Error('A channel must be specified');
+
+        if ( ! paramObj.hasOwnProperty('route') )
+            paramObj.route = defaultRoute;
+
+        if ( ! paramObj.hasOwnProperty('scope') )
+            paramObj.scope = null;
+
+        if ( routes.hasOwnProperty( paramObj.channel ) ) {
+
+            if ( ! routes[ paramObj.channel ].hasOwnProperty( paramObj.route ) ) return;
+
+            var i = 0, len = routes[paramObj.channel][paramObj.route].length;
+            for (; i < len; i++) {
+                if (routes[paramObj.channel][paramObj.route][i].caller === paramObj.scope)
+                    delete routes[paramObj.channel][paramObj.route][i];
+            }
+        }
+    }
+
+
+    /**
+     * Find function by it's scope in array of routs
+     * 
+     * @param callReference - scope of the calling function
      * @param array
      * @returns {*}
      */
