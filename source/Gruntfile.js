@@ -21,6 +21,14 @@ module.exports = function(grunt) {
                 }
             }
         },
+        copy: {
+            prod: {
+                files: [
+                    // includes files within path
+                    {expand: false, src: ['dist/nerve.js'], dest: '../nerve.js', filter: 'isFile'}
+                ]
+            }
+        },
         testem: {
             unit: {
                 options: {
@@ -49,11 +57,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-shell');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-testem');
 
 
     grunt.registerTask('default', ['shell', 'watch']);
     grunt.registerTask('test', ['testem:run:unit']);
-    grunt.registerTask('prod', ['shell', 'uglify:prod']);
+    grunt.registerTask('prod', ['shell', 'copy:prod', 'uglify:prod']);
 
 };
