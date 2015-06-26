@@ -58,7 +58,7 @@ module nerve {
      * @example
      * {
      *     channel: 'some-channel',
-     *     route: 'route'
+     *     route: 'route',
      *     callback: function( context ) {
      *          // some functionality
      *     },
@@ -176,6 +176,8 @@ module nerve {
             paramObj.scope = null;
 
         if ( routes.hasOwnProperty( paramObj.channel ) ) {
+
+            //ToDo: If user passed channel name only - it should remove all routes ?
 
             if ( ! routes[ paramObj.channel ].hasOwnProperty( paramObj.route ) ) return;
 
