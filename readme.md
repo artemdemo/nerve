@@ -45,6 +45,19 @@ nerve.on({
 });
 ```
 
+## Sending events to channels and routes - nerve.send()
+
+In the following example 'context' will be send as parameter to the callback
+
+```javascript
+nerve.on({
+     channel: 'some-channel',
+     route: 'some-route',
+     context: { someData: true }
+});
+```
+
+
 ## Removing listeners from a channel or route - nerve.off()
 
 **Removing a listener for a channel**
