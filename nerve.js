@@ -14,7 +14,7 @@ var nerve;
      * @example
      * {
      *     channel: 'some-channel',
-     *     route: 'route'
+     *     route: 'route',
      *     callback: function( context ) {
      *          // some functionality
      *     },
@@ -104,13 +104,15 @@ var nerve;
         if (!paramObj.hasOwnProperty('scope'))
             paramObj.scope = null;
         if (routes.hasOwnProperty(paramObj.channel)) {
+            //ToDo: If user passed channel name only - it should remove all routes ?
             if (!routes[paramObj.channel].hasOwnProperty(paramObj.route))
                 return;
-            var i = 0, len = routes[paramObj.channel][paramObj.route].length;
+            var i = 0, len = routes[paramObj.channel][paramObj.route].length, newArr = routes[paramObj.channel][paramObj.route];
             for (; i < len; i++) {
                 if (routes[paramObj.channel][paramObj.route][i].caller === paramObj.scope)
-                    delete routes[paramObj.channel][paramObj.route][i];
+                    newArr = routes[paramObj.channel][paramObj.route].slice(i, 1);
             }
+            routes[paramObj.channel][paramObj.route] = newArr;
         }
     }
     nerve.off = off;
