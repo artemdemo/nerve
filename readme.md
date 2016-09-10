@@ -50,7 +50,7 @@ nerve.on({
 In the following example 'context' will be send as parameter to the callback
 
 ```javascript
-nerve.on({
+nerve.send({
      channel: 'some-channel',
      route: 'some-route',
      context: { someData: true }
